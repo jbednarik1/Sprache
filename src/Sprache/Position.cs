@@ -3,12 +3,12 @@
 namespace Sprache
 {
     /// <summary>
-    /// Represents a position in the input.
+    ///     Represents a position in the input.
     /// </summary>
     public class Position : IEquatable<Position>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Position" /> class.
+        ///     Initializes a new instance of the <see cref="Position" /> class.
         /// </summary>
         /// <param name="pos">The position.</param>
         /// <param name="line">The line number.</param>
@@ -21,47 +21,52 @@ namespace Sprache
         }
 
         /// <summary>
-        /// Creates an new <see cref="Position"/> instance from a given <see cref="IInput"/> object.
+        ///     Gets the current positon.
+        /// </summary>
+        public int Pos { get; }
+
+        /// <summary>
+        ///     Gets the current line number.
+        /// </summary>
+        public int Line { get; }
+
+        /// <summary>
+        ///     Gets the current column.
+        /// </summary>
+        public int Column { get; }
+
+        /// <summary>
+        ///     Indicates whether the current <see cref="Position" /> is equal to another object of the same type.
+        /// </summary>
+        /// <returns>
+        ///     true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
+        /// </returns>
+        /// <param name="other">An object to compare with this object.</param>
+        public bool Equals(Position other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Pos == other.Pos
+                   && Line == other.Line
+                   && Column == other.Column;
+        }
+
+        /// <summary>
+        ///     Creates an new <see cref="Position" /> instance from a given <see cref="IInput" /> object.
         /// </summary>
         /// <param name="input">The current input.</param>
-        /// <returns>A new <see cref="Position"/> instance.</returns>
+        /// <returns>A new <see cref="Position" /> instance.</returns>
         public static Position FromInput(IInput input)
         {
             return new Position(input.Position, input.Line, input.Column);
         }
 
         /// <summary>
-        /// Gets the current positon.
-        /// </summary>
-        public int Pos
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the current line number.
-        /// </summary>
-        public int Line
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the current column.
-        /// </summary>
-        public int Column
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="Position" />.
+        ///     Determines whether the specified <see cref="T:System.Object" /> is equal to the current <see cref="Position" />.
         /// </summary>
         /// <returns>
-        /// true if the specified <see cref="T:System.Object"/> is equal to the current <see cref="Position" />; otherwise, false.
+        ///     true if the specified <see cref="T:System.Object" /> is equal to the current <see cref="Position" />; otherwise,
+        ///     false.
         /// </returns>
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
@@ -70,23 +75,7 @@ namespace Sprache
         }
 
         /// <summary>
-        /// Indicates whether the current <see cref="Position" /> is equal to another object of the same type.
-        /// </summary>
-        /// <returns>
-        /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
-        /// </returns>
-        /// <param name="other">An object to compare with this object.</param>
-        public bool Equals(Position other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Pos == other.Pos
-                && Line == other.Line
-                && Column == other.Column;
-        }
-
-        /// <summary>
-        /// Indicates whether the left <see cref="Position" /> is equal to the right <see cref="Position" />.
+        ///     Indicates whether the left <see cref="Position" /> is equal to the right <see cref="Position" />.
         /// </summary>
         /// <param name="left">The left <see cref="Position" />.</param>
         /// <param name="right">The right <see cref="Position" />.</param>
@@ -97,7 +86,7 @@ namespace Sprache
         }
 
         /// <summary>
-        /// Indicates whether the left <see cref="Position" /> is not equal to the right <see cref="Position" />.
+        ///     Indicates whether the left <see cref="Position" /> is not equal to the right <see cref="Position" />.
         /// </summary>
         /// <param name="left">The left <see cref="Position" />.</param>
         /// <param name="right">The right <see cref="Position" />.</param>
@@ -108,25 +97,25 @@ namespace Sprache
         }
 
         /// <summary>
-        /// Serves as a hash function for a particular type.
+        ///     Serves as a hash function for a particular type.
         /// </summary>
         /// <returns>
-        /// A hash code for the current <see cref="Position" />.
+        ///     A hash code for the current <see cref="Position" />.
         /// </returns>
         public override int GetHashCode()
         {
             var h = 31;
-            h = h * 13 + Pos;
-            h = h * 13 + Line;
-            h = h * 13 + Column;
+            h = h*13 + Pos;
+            h = h*13 + Line;
+            h = h*13 + Column;
             return h;
         }
 
         /// <summary>
-        /// Returns a string that represents the current object.
+        ///     Returns a string that represents the current object.
         /// </summary>
         /// <returns>
-        /// A string that represents the current object.
+        ///     A string that represents the current object.
         /// </returns>
         public override string ToString()
         {

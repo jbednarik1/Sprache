@@ -1,24 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+
+using Xunit;
+using Xunit.Sdk;
 
 namespace Sprache.Tests
 {
-    static class AssertParser
+    internal static class AssertParser
     {
         public static void SucceedsWithOne<T>(Parser<IEnumerable<T>> parser, string input, T expectedResult)
         {
             SucceedsWith(parser, input, t =>
             {
-                Assert.AreEqual(1, t.Count());
-                Assert.AreEqual(expectedResult, t.Single());
+                IEnumerable<T> ts = t as T[] ?? t.ToArray();
+                Assert.Equal(1, ts.Count());
+                Assert.Equal(expectedResult, ts.Single());
             });
         }
 
-        public static void SucceedsWithMany<T>(Parser<IEnumerable<T>> parser, string input, IEnumerable<T> expectedResult)
+        public static void SucceedsWithMany<T>(Parser<IEnumerable<T>> parser, string input,
+            IEnumerable<T> expectedResult)
         {
-            SucceedsWith(parser, input, t => Assert.IsTrue(t.SequenceEqual(expectedResult)));
+            SucceedsWith(parser, input, t => Assert.True(t.SequenceEqual(expectedResult)));
         }
 
         public static void SucceedsWithAll(Parser<IEnumerable<char>> parser, string input)
@@ -29,11 +33,7 @@ namespace Sprache.Tests
         public static void SucceedsWith<T>(Parser<T> parser, string input, Action<T> resultAssertion)
         {
             parser.TryParse(input)
-                .IfFailure(f =>
-                {
-                    Assert.Fail("Parsing of \"{0}\" failed unexpectedly. {1}", input, f);
-                    return f;
-                })
+                .IfFailure(f => { throw new XunitException($"Parsing of \"{input}\" failed unexpectedly. {f}"); })
                 .IfSuccess(s =>
                 {
                     resultAssertion(s.Value);
@@ -48,17 +48,13 @@ namespace Sprache.Tests
 
         public static void FailsAt<T>(Parser<T> parser, string input, int position)
         {
-            FailsWith(parser, input, f => Assert.AreEqual(position, f.Remainder.Position));
+            FailsWith(parser, input, f => Assert.Equal(position, f.Remainder.Position));
         }
 
         public static void FailsWith<T>(Parser<T> parser, string input, Action<IResult<T>> resultAssertion)
         {
             parser.TryParse(input)
-                .IfSuccess(s =>
-                {
-                    Assert.Fail("Expected failure but succeeded with {0}.", s.Value);
-                    return s;
-                })
+                .IfSuccess<T, T>(s => { throw new XunitException($"Expected failure but succeeded with {s.Value}."); })
                 .IfFailure(f =>
                 {
                     resultAssertion(f);

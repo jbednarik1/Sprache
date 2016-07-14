@@ -1,38 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+
+using Xunit;
 
 namespace Sprache.Tests
 {
-    [TestFixture]
     public class ParseTests
     {
-        [Test]
+        [Fact]
         public void Parser_OfChar_AcceptsThatChar()
         {
             AssertParser.SucceedsWithOne(Parse.Char('a').Once(), "a", 'a');
         }
 
-        [Test]
+        [Fact]
         public void Parser_OfChar_AcceptsOnlyOneChar()
         {
             AssertParser.SucceedsWithOne(Parse.Char('a').Once(), "aaa", 'a');
         }
 
-        [Test]
+        [Fact]
         public void Parser_OfChar_DoesNotAcceptNonMatchingChar()
         {
             AssertParser.FailsAt(Parse.Char('a').Once(), "b", 0);
         }
 
-        [Test]
+        [Fact]
         public void Parser_OfChar_DoesNotAcceptEmptyInput()
         {
             AssertParser.Fails(Parse.Char('a').Once(), "");
         }
 
-        [Test]
+        [Fact]
         public void Parser_OfChars_AcceptsAnyOfThoseChars()
         {
             var parser = Parse.Chars('a', 'b', 'c').Once();
@@ -41,7 +41,7 @@ namespace Sprache.Tests
             AssertParser.SucceedsWithOne(parser, "c", 'c');
         }
 
-        [Test]
+        [Fact]
         public void Parser_OfChars_UsingString_AcceptsAnyOfThoseChars()
         {
             var parser = Parse.Chars("abc").Once();
@@ -50,37 +50,37 @@ namespace Sprache.Tests
             AssertParser.SucceedsWithOne(parser, "c", 'c');
         }
 
-        [Test]
+        [Fact]
         public void Parser_OfManyChars_AcceptsEmptyInput()
         {
             AssertParser.SucceedsWithAll(Parse.Char('a').Many(), "");
         }
 
-        [Test]
+        [Fact]
         public void Parser_OfManyChars_AcceptsManyChars()
         {
             AssertParser.SucceedsWithAll(Parse.Char('a').Many(), "aaa");
         }
 
-        [Test]
+        [Fact]
         public void Parser_OfAtLeastOneChar_DoesNotAcceptEmptyInput()
         {
             AssertParser.Fails(Parse.Char('a').AtLeastOnce(), "");
         }
 
-        [Test]
+        [Fact]
         public void Parser_OfAtLeastOneChar_AcceptsOneChar()
         {
             AssertParser.SucceedsWithAll(Parse.Char('a').AtLeastOnce(), "a");
         }
 
-        [Test]
+        [Fact]
         public void Parser_OfAtLeastOneChar_AcceptsManyChars()
         {
             AssertParser.SucceedsWithAll(Parse.Char('a').AtLeastOnce(), "aaa");
         }
 
-        [Test]
+        [Fact]
         public void ConcatenatingParsers_ConcatenatesResults()
         {
             var p = Parse.Char('a').Once().Then(a =>
@@ -88,22 +88,22 @@ namespace Sprache.Tests
             AssertParser.SucceedsWithAll(p, "ab");
         }
 
-        [Test]
+        [Fact]
         public void ReturningValue_DoesNotAdvanceInput()
         {
             var p = Parse.Return(1);
-            AssertParser.SucceedsWith(p, "abc", n => Assert.AreEqual(1, n));
+            AssertParser.SucceedsWith(p, "abc", n => Assert.Equal(1, n));
         }
 
-        [Test]
+        [Fact]
         public void ReturningValue_ReturnsValueAsResult()
         {
             var p = Parse.Return(1);
             var r = (Result<int>)p.TryParse("abc");
-            Assert.AreEqual(0, r.Remainder.Position);
+            Assert.Equal(0, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void CanSpecifyParsersUsingQueryComprehensions()
         {
             var p = from a in Parse.Char('a').Once()
@@ -114,14 +114,14 @@ namespace Sprache.Tests
             AssertParser.SucceedsWithAll(p, "abbbc");
         }
 
-        [Test]
+        [Fact]
         public void WhenFirstOptionSucceedsButConsumesNothing_SecondOptionTried()
         {
             var p = Parse.Char('a').Many().XOr(Parse.Char('b').Many());
             AssertParser.SucceedsWithAll(p, "bbb");
         }
 
-        [Test]
+        [Fact]
         public void WithXOr_WhenFirstOptionFailsAndConsumesInput_SecondOptionNotTried()
         {
             var first = Parse.Char('a').Once().Concat(Parse.Char('b').Once());
@@ -130,7 +130,7 @@ namespace Sprache.Tests
             AssertParser.FailsAt(p, "a", 1);
         }
 
-        [Test]
+        [Fact]
         public void WithOr_WhenFirstOptionFailsAndConsumesInput_SecondOptionTried()
         {
             var first = Parse.Char('a').Once().Concat(Parse.Char('b').Once());
@@ -139,7 +139,7 @@ namespace Sprache.Tests
             AssertParser.SucceedsWithAll(p, "a");
         }
 
-        [Test]
+        [Fact]
         public void ParsesString_AsSequenceOfChars()
         {
             var p = Parse.String("abc");
@@ -153,7 +153,7 @@ namespace Sprache.Tests
              select first.Concat(rest))
             .Or(Parse.Char('a').Once());
 
-        [Test]
+        [Fact]
         public void DetectsLeftRecursion()
         {
             Assert.Throws<ParseException>(() => ASeq.TryParse("a,a,a"));
@@ -171,13 +171,13 @@ namespace Sprache.Tests
              select first.Concat(rest))
             .Or(Parse.Char('b').Once());
 
-        [Test]
+        [Fact]
         public void DetectsMutualLeftRecursion()
         {
             Assert.Throws<ParseException>(() => ABSeq.End().TryParse("baba"));
         }
 
-        [Test]
+        [Fact]
         public void WithMany_WhenLastElementFails_FailureReportedAtLastElement()
         {
             var ab = from a in Parse.Char('a')
@@ -189,7 +189,7 @@ namespace Sprache.Tests
             AssertParser.FailsAt(p, "ababaf", 4);
         }
 
-        [Test]
+        [Fact]
         public void WithXMany_WhenLastElementFails_FailureReportedAtLastElement()
         {
             var ab = from a in Parse.Char('a')
@@ -201,97 +201,98 @@ namespace Sprache.Tests
             AssertParser.FailsAt(p, "ababaf", 5);
         }
 
-        [Test]
+        [Fact]
         public void ExceptStopsConsumingInputWhenExclusionParsed()
         {
             var exceptAa = Parse.AnyChar.Except(Parse.String("aa")).Many().Text();
-            AssertParser.SucceedsWith(exceptAa, "abcaab", r => Assert.AreEqual("abc", r));
+            AssertParser.SucceedsWith(exceptAa, "abcaab", r => Assert.Equal("abc", r));
         }
 
-        [Test]
+        [Fact]
         public void UntilProceedsUntilTheStopConditionIsMetAndReturnsAllButEnd()
         {
             var untilAa = Parse.AnyChar.Until(Parse.String("aa")).Text();
             var r = untilAa.TryParse("abcaab");
-            Assert.IsInstanceOf<Result<string>>(r);
+            //Assert.IsInstanceOf<Result<string>>(r);
+            Assert.IsAssignableFrom<Result<string>>(r);
             var s = (Result<string>)r;
-            Assert.AreEqual("abc", s.Value);
-            Assert.AreEqual(5, s.Remainder.Position);
+            Assert.Equal("abc", s.Value);
+            Assert.Equal(5, s.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void OptionalParserConsumesInputOnSuccessfulMatch()
         {
             var optAbc = Parse.String("abc").Text().Optional();
             var r = optAbc.TryParse("abcd");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual(3, r.Remainder.Position);
-            Assert.IsTrue(r.Value.IsDefined);
-            Assert.AreEqual("abc", r.Value.Get());
+            Assert.True(r.WasSuccessful);
+            Assert.Equal(3, r.Remainder.Position);
+            Assert.True(r.Value.IsDefined);
+            Assert.Equal("abc", r.Value.Get());
         }
 
-        [Test]
+        [Fact]
         public void OptionalParserDoesNotConsumeInputOnFailedMatch()
         {
             var optAbc = Parse.String("abc").Text().Optional();
             var r = optAbc.TryParse("d");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual(0, r.Remainder.Position);
-            Assert.IsTrue(r.Value.IsEmpty);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal(0, r.Remainder.Position);
+            Assert.True(r.Value.IsEmpty);
         }
 
-        [Test]
+        [Fact]
         public void RegexParserConsumesInputOnSuccessfulMatch()
         {
             var digits = Parse.Regex(@"\d+");
             var r = digits.TryParse("123d");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual("123", r.Value);
-            Assert.AreEqual(3, r.Remainder.Position);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal("123", r.Value);
+            Assert.Equal(3, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void RegexParserDoesNotConsumeInputOnFailedMatch()
         {
             var digits = Parse.Regex(@"\d+");
             var r = digits.TryParse("d123");
-            Assert.IsFalse(r.WasSuccessful);
-            Assert.AreEqual(0, r.Remainder.Position);
+            Assert.False(r.WasSuccessful);
+            Assert.Equal(0, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void RegexMatchParserConsumesInputOnSuccessfulMatch()
         {
             var digits = Parse.RegexMatch(@"\d(\d*)");
             var r = digits.TryParse("123d");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual("123", r.Value.Value);
-            Assert.AreEqual("23", r.Value.Groups[1].Value);
-            Assert.AreEqual(3, r.Remainder.Position);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal("123", r.Value.Value);
+            Assert.Equal("23", r.Value.Groups[1].Value);
+            Assert.Equal(3, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void RegexMatchParserDoesNotConsumeInputOnFailedMatch()
         {
             var digits = Parse.RegexMatch(@"\d+");
             var r = digits.TryParse("d123");
-            Assert.IsFalse(r.WasSuccessful);
-            Assert.AreEqual(0, r.Remainder.Position);
+            Assert.False(r.WasSuccessful);
+            Assert.Equal(0, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void PositionedParser()
         {
             var pos = (from s in Parse.String("winter").Text()
                        select new PosAwareStr { Value = s })
                        .Positioned();
             var r = pos.TryParse("winter");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual(0, r.Value.Pos.Pos);
-            Assert.AreEqual(6, r.Value.Length);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal(0, r.Value.Pos.Pos);
+            Assert.Equal(6, r.Value.Length);
         }
 
-        [Test]
+        [Fact]
         public void XAtLeastOnceParser_WhenLastElementFails_FailureReportedAtLastElement()
         {
             var ab = Parse.String("ab").Text();
@@ -299,7 +300,7 @@ namespace Sprache.Tests
             AssertParser.FailsAt(p, "ababaf", 5);
         }
 
-        [Test]
+        [Fact]
         public void XAtLeastOnceParser_WhenFirstElementFails_FailureReportedAtFirstElement()
         {
             var ab = Parse.String("ab").Text();
@@ -307,91 +308,91 @@ namespace Sprache.Tests
             AssertParser.FailsAt(p, "d", 0);
         }
 
-        [Test]
+        [Fact]
         public void NotParserConsumesNoInputOnFailure()
         {
             var notAb = Parse.String("ab").Text().Not();
             AssertParser.FailsAt(notAb, "abc", 0);
         }
 
-        [Test]
+        [Fact]
         public void NotParserConsumesNoInputOnSuccess()
         {
             var notAb = Parse.String("ab").Text().Not();
             var r = notAb.TryParse("d");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual(0, r.Remainder.Position);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal(0, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void IgnoreCaseParser()
         {
             var ab = Parse.IgnoreCase("ab").Text();
-            AssertParser.SucceedsWith(ab, "Ab", m => Assert.AreEqual("Ab", m));
+            AssertParser.SucceedsWith(ab, "Ab", m => Assert.Equal("Ab", m));
         }
 
-        [Test]
+        [Fact]
         public void RepeatParserConsumeInputOnSuccessfulMatch()
         {
             var repeated = Parse.Char('a').Repeat(3);
             var r = repeated.TryParse("aaabbb");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual(3, r.Remainder.Position);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal(3, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void RepeatParserDoesntConsumeInputOnFailedMatch()
         {
             var repeated = Parse.Char('a').Repeat(3);
             var r = repeated.TryParse("bbbaaa");
-            Assert.IsTrue(!r.WasSuccessful);
-            Assert.AreEqual(0, r.Remainder.Position);
+            Assert.True(!r.WasSuccessful);
+            Assert.Equal(0, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void RepeatParserCanParseWithCountOfZero()
         {
             var repeated = Parse.Char('a').Repeat(0);
             var r = repeated.TryParse("bbb");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual(0, r.Remainder.Position);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal(0, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void RepeatParserCanParseAMinimumNumberOfValues()
         {
             var repeated = Parse.Char('a').Repeat(4, 5);
 
             // Test failure.
             var r = repeated.TryParse("aaa");
-            Assert.IsFalse(r.WasSuccessful);
-            Assert.AreEqual(0, r.Remainder.Position);
+            Assert.False(r.WasSuccessful);
+            Assert.Equal(0, r.Remainder.Position);
 
             // Test success.
             r = repeated.TryParse("aaaa");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual(4, r.Remainder.Position);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal(4, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void RepeatParserCanParseAMaximumNumberOfValues()
         {
             var repeated = Parse.Char('a').Repeat(4, 5);
 
             var r = repeated.TryParse("aaaa");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual(4, r.Remainder.Position);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal(4, r.Remainder.Position);
 
             r = repeated.TryParse("aaaaa");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual(5, r.Remainder.Position);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal(5, r.Remainder.Position);
 
             r = repeated.TryParse("aaaaaa");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.AreEqual(5, r.Remainder.Position);
+            Assert.True(r.WasSuccessful);
+            Assert.Equal(5, r.Remainder.Position);
         }
 
-        [Test]
+        [Fact]
         public void RepeatParserErrorMessagesAreReadable()
         {
             var repeated = Parse.Char('a').Repeat(4, 5);
@@ -404,37 +405,39 @@ namespace Sprache.Tests
             }
             catch(ParseException ex)
             {
-                Assert.That(ex.Message, Is.StringStarting(expectedMessage));
+                Assert.StartsWith(expectedMessage, ex.Message);
             }
         }
 
-        [Test]
+        [Fact]
         public void CanParseSequence()
         {
             var sequence = Parse.Char('a').DelimitedBy(Parse.Char(','));
             var r = sequence.TryParse("a,a,a");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.IsTrue(r.Remainder.AtEnd);
+            Assert.True(r.WasSuccessful);
+            Assert.True(r.Remainder.AtEnd);
         }
 
-        [Test]
+        [Fact]
         public void FailGracefullyOnSequence()
         {
             var sequence = Parse.Char('a').XDelimitedBy(Parse.Char(','));
             AssertParser.FailsWith(sequence, "a,a,b", result =>
             {
-                StringAssert.Contains("unexpected 'b'", result.Message);
-                CollectionAssert.Contains(result.Expectations, "a");
+                //StringAssert.Contains();
+                Assert.Contains("unexpected 'b'", result.Message);
+                //CollectionAssert.Contains(result.Expectations, "a");
+                Assert.Contains("a", result.Expectations);
             });
         }
 
-        [Test]
+        [Fact]
         public void CanParseContained()
         {
             var parser = Parse.Char('a').Contained(Parse.Char('['), Parse.Char(']'));
             var r = parser.TryParse("[a]");
-            Assert.IsTrue(r.WasSuccessful);
-            Assert.IsTrue(r.Remainder.AtEnd);
+            Assert.True(r.WasSuccessful);
+            Assert.True(r.Remainder.AtEnd);
         }
     }
 }

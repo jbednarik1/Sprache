@@ -1,61 +1,61 @@
-﻿﻿using NUnit.Framework;
+﻿using System;
 using System.Globalization;
-using System.Threading;
+
+using Xunit;
 
 namespace Sprache.Tests
 {
-    [TestFixture]
-    public class DecimalTests
+    public class DecimalTests : IDisposable
     {
+        public DecimalTests()
+        {
+            _previousCulture = CultureInfo.CurrentCulture;
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+        }
+
+        public void Dispose()
+        {
+            CultureInfo.CurrentCulture = _previousCulture;
+        }
+
         private static readonly Parser<string> DecimalParser = Parse.Decimal.End();
         private static readonly Parser<string> DecimalInvariantParser = Parse.DecimalInvariant.End();
 
-        private CultureInfo _previousCulture;
+        private readonly CultureInfo _previousCulture;
 
-        [SetUp]
-        public void Init()
-        {
-            _previousCulture = Thread.CurrentThread.CurrentCulture;
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-        }
-
-        [TearDown]
-        public void Cleanup()
-        {
-            Thread.CurrentThread.CurrentCulture = _previousCulture;
-        }
-
-        [Test]
+        [Fact]
         public void LeadingDigits()
         {
-            Assert.AreEqual("12.23", DecimalParser.Parse("12.23"));
+            const string value = "12.23";
+            Assert.Equal(value, DecimalParser.Parse(value));
         }
 
-        [Test]
-        public void NoLeadingDigits()
-        {
-            Assert.AreEqual(".23", DecimalParser.Parse(".23"));
-        }
-
-        [Test]
-        [ExpectedException(typeof(ParseException))]
-        public void TwoPeriods()
-        {
-            DecimalParser.Parse("1.2.23");
-        }
-
-        [Test]
-        [ExpectedException(typeof(ParseException))]
-        public void Letters()
-        {
-            DecimalParser.Parse("1A.5");
-        }
-
-        [Test]
+        [Fact]
         public void LeadingDigitsInvariant()
         {
-            Assert.AreEqual("12.23", DecimalInvariantParser.Parse("12.23"));
+            const string expected = "12.23";
+            Assert.Equal(expected, DecimalInvariantParser.Parse(expected));
         }
 
+        [Fact]
+        public void Letters()
+        {
+            const string input = "1A.5";
+            Assert.Throws<ParseException>(() => DecimalParser.Parse(input));
+        }
+
+        [Fact]
+        public void NoLeadingDigits()
+        {
+            const string value = ".23";
+            Assert.Equal(value, DecimalParser.Parse(value));
+        }
+
+        [Fact]
+        public void TwoPeriods()
+        {
+            const string input = "1.2.23";
+            Assert.Throws<ParseException>(() => DecimalParser.Parse(input));
+        }
     }
 }

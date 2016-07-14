@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 namespace Sprache.Tests
 {
-    static class AssertInput
+    internal static class AssertInput
     {
         public static IInput AdvanceMany(this IInput input, int count)
         {
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 input = input.Advance();
             }

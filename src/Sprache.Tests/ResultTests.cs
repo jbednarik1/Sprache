@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+
+using Xunit;
 
 namespace Sprache.Tests
 {
-    [TestFixture]
     public class ResultTests
     {
-        [Test]
+        [Fact]
         public void FailureContainingBracketFormattedSuccessfully()
         {
             var p = Parse.String("xy").Text().XMany().End();
             var r = (Result<IEnumerable<string>>)p.TryParse("x{");
-            Assert.That(r.Message.Contains("unexpected '{'"));
+            Assert.Contains("unexpected '{'", r.Message);
         }
 
-        [Test]
+        [Fact]
         public void FailureShowsNearbyParseResults()
         {
             var p = from a in Parse.Char('x')
@@ -28,7 +28,7 @@ namespace Sprache.Tests
 
             const string expectedMessage = @"Parsing failure: unexpected '{'; expected y (Line 1, Column 2); recently consumed: x";
 
-            Assert.That(r.ToString(), Is.EqualTo(expectedMessage));
+            Assert.Equal(expectedMessage, r.ToString());
         }
     }
 }
